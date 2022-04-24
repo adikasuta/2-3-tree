@@ -11,8 +11,6 @@ typedef struct node
 	struct node *left,*mid,*right;
 }node;
 
-node * alloc(int left, int right);
-
 node * alloc(int left, int right){
 	node *T=(node*)malloc(sizeof(node));
 	T->dataLeft=left;
@@ -21,7 +19,6 @@ node * alloc(int left, int right){
 	T->mid=NULL;
 	T->right=NULL;
 }
-
 
 int determinePosition(node *T, int num){
 	int leftExisted = T->dataLeft != NULL;
@@ -107,6 +104,7 @@ node * findLeafParent(node *head, int num, node* parent){
 void split(node **head, node *pos, node *replacer){
 	
 	int num = replacer->dataLeft;
+	//determine left,mid and right node
 	int mid,left,right;
 	if(replacer->dataLeft < pos->dataLeft){
 		mid = pos->dataLeft;
@@ -122,10 +120,12 @@ void split(node **head, node *pos, node *replacer){
 		left = pos->dataLeft;
 	}
 	
+	//allocate new node for them
 	node *splitMid= alloc(mid, NULL);
 	node *splitLeft = alloc(left, NULL);
 	node *splitRight = alloc(right, NULL);
 	
+	//put on pos and replacer children into splitleft and right
 	if(replacer->dataLeft == mid){
 		splitLeft->left = pos->left;
 		splitLeft->mid = replacer->left;
@@ -147,12 +147,15 @@ void split(node **head, node *pos, node *replacer){
 		splitRight->mid = replacer->mid;
 	}
 	
+	//put split left & right as left and mid child of middle node
 	splitMid->left = splitLeft;
 	splitMid->mid = splitRight;
 	
 	node *temp = *head;
+	//find parent of pos node
 	node *parent = findLeafParent(temp, mid, NULL);
 	
+	//jika parent baru diisi satu data
 	if(parent != NULL && parent->dataRight == NULL){
 		int isLeft = parent->dataLeft > num;
 		if(isLeft){
@@ -169,13 +172,14 @@ void split(node **head, node *pos, node *replacer){
 		
 		free(pos);
 		return;
-	}else if(parent == NULL){
-		*head = splitMid;
+	}else if(parent == NULL){//jika displit sampai root
+		*head = splitMid;//isi root dengan middle node
 		free(pos);
 		return;
 	}
 	
 	free(pos);
+	//jika parent sudah diisi dua data
 	split(head,parent,splitMid);
 }
 
